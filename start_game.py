@@ -40,6 +40,10 @@ class Player(pygame.sprite.Sprite):
 		if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
 			self.gravity = -20
 			self.jump_sound.play()
+		if keys[pygame.K_RIGHT]:
+			self.rect.x += 10
+		if keys[pygame.K_LEFT]:
+			self.rect.x -= 10
 
 	def apply_gravity(self):
 		self.gravity += 1
@@ -160,7 +164,7 @@ def update_score():
 #----------------------- Main program: Start ----------------
 # Changing the current working directory
 os.chdir('c:/Zorawar/PythonProjects/PygameRun') #NOTE: Change this path as per your project location
-player_name = 'ZORAWAR' #static player name at the moment. TODO Input this from the user
+player_name = input("Enter your Username: ") #static player name at the moment. TODO Input this from the user
 database_init()
 pygame.init()
 screen = pygame.display.set_mode((800,400))
@@ -214,7 +218,7 @@ while True:
 				obstacle_group.add(Obstacle(choice(['fly','snail','snail','snail'])))
 		
 		else:
-			if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+			if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT):
 				game_active = True
 				highestScoreUpdated = update_score()
 				display_higest_score()
