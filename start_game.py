@@ -12,7 +12,7 @@ class Player(pygame.sprite.Sprite):
 		player_run_5 = pygame.image.load('graphics/player/knight/player_run_5.png').convert_alpha()
 		player_run_10 = pygame.image.load('graphics/player/knight/player_run_10.png').convert_alpha()
 		self.player_run = [player_run_1, player_run_5, player_run_10]
-
+		
 		player_jump_1 = pygame.image.load('graphics/player/knight/player_jump_1.png').convert_alpha()
 		player_jump_2 = pygame.image.load('graphics/player/knight/player_jump_2.png').convert_alpha()
 		player_jump_3 = pygame.image.load('graphics/player/knight/player_jump_3.png').convert_alpha()
