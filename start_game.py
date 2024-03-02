@@ -12,6 +12,7 @@ WIDTH, HEIGHT = 800, 400
 clock = pygame.time.Clock()
 
 #----------------------- Function display_score: Start ----------------
+# Displays the hightest score on the screen
 def display_higest_score():
 	highestScoreRow = get_highest_score()
 	hg_score_surf = test_font.render(f'Higest Score: {highestScoreRow}',False,'RED')
@@ -20,6 +21,7 @@ def display_higest_score():
 #----------------------- Function collision_sprite: End ----------------
 
 #----------------------- Function display_score: Start ----------------
+# Displays the current score of the player
 def display_score():
 	current_time = int(pygame.time.get_ticks() / 1000) - start_time
 	score_surf = test_font.render(f'Score: {current_time}',False,(64,64,64))
@@ -29,6 +31,7 @@ def display_score():
 #----------------------- Function collision_sprite: End ----------------
 
 #----------------------- Function collision_sprite: Start ----------------
+# Checks if sprite collides with enemy and return true/false
 def collision_sprite():
 	if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
 		obstacle_group.empty()
@@ -37,6 +40,7 @@ def collision_sprite():
 #----------------------- Function collision_sprite: End ----------------
 
 #----------------------- Function database_init: Start ----------------
+# Initialise the database tables, connection, etc
 def database_init():
 	print("database_init - going to create/open db connection.....1")
 	global dbConnection, cursor, highestScoreRow
@@ -48,16 +52,19 @@ def database_init():
 #----------------------- Function database_init: End ----------------
 
 #----------------------- Function get_personal_highest_score: Start ----------------
+# Utility function to get the player's personal highest score from the database
 def get_personal_highest_score():
 	return cursor.execute("select * from higest_score where name = ?", (player_name,)).fetchone()
 #----------------------- Function get_personal_highest_score: End ----------------
 
 #----------------------- Function get_highest_score: Start ----------------
+# Utility function to get the higest score from the database
 def get_highest_score():
 	return cursor.execute("select * from higest_score where score = (select max(score) from higest_score)").fetchone()
 #----------------------- Function get_highest_score: End ----------------
 
 #----------------------- Function update_score: Start ----------------
+# Insert or Update the score of current player in the database
 def update_score():
 	retValue = False
 	print("update_score - **score = ", score)
@@ -79,7 +86,7 @@ def update_score():
 #----------------------- Main program: Start ----------------
 # Changing the current working directory
 os.chdir('c:/Zorawar/PythonProjects/PygameRun') #NOTE: Change this path as per your project location
-player_name = input("Enter your Username: ") #static player name at the moment. TODO Input this from the user
+player_name = input("Enter your player name: ")
 database_init()
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
