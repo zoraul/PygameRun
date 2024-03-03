@@ -30,13 +30,29 @@ def display_score():
 	return current_time
 #----------------------- Function collision_sprite: End ----------------
 
+#----------------------- Function display_lives: Start ----------------
+# Displays the number of lives of the player
+def display_lives():
+	lives_surf = test_font.render(f'Lives: {player.sprite.player_lives}',False,(64,64,64))
+	lives_rect = lives_surf.get_rect(center = (600,50))
+	screen.blit(lives_surf, lives_rect)
+#----------------------- Function display_lives: End ----------------
+
+#----------------------- Function display_game_level: Start ----------------
+# Displays the game's difficulty level
+def display_game_level():
+	level_surf = test_font.render(f'Level: {Obstacle.game_level}',False,(64,64,64))
+	level_rect = level_surf.get_rect(center = (200,50))
+	screen.blit(level_surf, level_rect)
+#----------------------- Function display_game_level: End ----------------
+
 #----------------------- Function collision_sprite: Start ----------------
 # Checks if sprite collides with enemy and return true/false
 def collision_sprite():
 	if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
 		obstacle_group.empty()
-		return False
-	else: return True
+		player.sprite.player_lives -= 1
+		print("player lives = ", player.sprite.player_lives)
 #----------------------- Function collision_sprite: End ----------------
 
 #----------------------- Function database_init: Start ----------------
@@ -82,11 +98,28 @@ def update_score():
 	return retValue
 #----------------------- Function update_score: End ----------------
 
+#----------------------- Function update_game_level: Start ----------------
+# updates the game's difficulty level
+def update_game_level():
+	if score > 30:
+		pygame.time.set_timer(obstacle_timer, int(Obstacle.Level.HARDEST))
+		Obstacle.game_level = Obstacle.Level.HARDEST.name
+	elif score > 20:
+		pygame.time.set_timer(obstacle_timer, int(Obstacle.Level.HARD))
+		Obstacle.game_level = Obstacle.Level.HARD.name
+	elif score > 10:
+		pygame.time.set_timer(obstacle_timer, int(Obstacle.Level.MEDIUM))
+		Obstacle.game_level = Obstacle.Level.MEDIUM.name
+	else:
+		pygame.time.set_timer(obstacle_timer, int(Obstacle.Level.EASY))
+		Obstacle.game_level = Obstacle.Level.EASY.name
+#----------------------- Function update_game_level: End ----------------
+
 
 #----------------------- Main program: Start ----------------
 # Changing the current working directory
-os.chdir('c:/Zorawar/PythonProjects/PygameRun') #NOTE: Change this path as per your project location
-player_name = input("Enter your player name: ")
+os.chdir('C:/GitHub/PygameRun') #NOTE: Change this path as per your project location
+player_name = input("Enter your name: ")
 database_init()
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -96,7 +129,8 @@ test_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 game_active = False
 start_time = 0
 score = 0
-bg_music = pygame.mixer.Sound('audio/18 Among Thieves.mp3')
+global bg_music 
+bg_music = pygame.mixer.Sound('audio/amongThieves.mp3')
 bg_music.play(loops = -1)
 
 #Groups
@@ -121,17 +155,24 @@ game_message_rect = game_message.get_rect(center = (400,330))
 
 # Timer 
 obstacle_timer = pygame.USEREVENT + 1
-pygame.time.set_timer(obstacle_timer,1500)
+pygame.time.set_timer(obstacle_timer, int(Obstacle.Level.EASY))
+Obstacle.game_level = "EASY"
 
 while True:
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			pygame.quit()
-			print("**score = ", score)
+	for event in pygame.event.get():	
+		update_game_level()
+		display_game_level()
+
+		if player.sprite.player_lives == 0 and game_active:
+			game_active = False
 			isPersonalHighestScoreUpdated = update_score()
 			if isPersonalHighestScoreUpdated:
 				print("You have broken the record and having higest score of ", score)
-			dbConnection.close() # close the database connection
+			
+			
+		if event.type == pygame.QUIT:
+			pygame.quit()
+			dbConnection.close() 
 			exit()
 
 		if game_active:
@@ -142,6 +183,8 @@ while True:
 		else:
 			if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT):
 				game_active = True
+				score = 0
+				player.sprite.player_lives = 3
 				isPersonalHighestScoreUpdated = update_score()
 				display_higest_score()
 				if isPersonalHighestScoreUpdated:
@@ -153,6 +196,8 @@ while True:
 		screen.blit(sky_surface,(0,0))
 		screen.blit(ground_surface,(0,300))
 		display_higest_score()
+		display_lives()
+		display_game_level()
 		score = display_score()
 		
 		player.draw(screen)
@@ -161,8 +206,7 @@ while True:
 		obstacle_group.draw(screen)
 		obstacle_group.update()
 
-		game_active = collision_sprite()
-		
+		collision_sprite()
 	else:
 		screen.fill((94,129,162))
 		screen.blit(player_stand,player_stand_rect)
@@ -170,9 +214,14 @@ while True:
 		score_message = test_font.render(f'Your score: {score}',False,(111,196,169))
 		score_message_rect = score_message.get_rect(center = (400,330))
 		screen.blit(game_name,game_name_rect)
+		restart_message = test_font.render(f'Press space to restart a new game',False,(111,196,169))
+		restart_message_rect = restart_message.get_rect(center = (400,380))
 
-		if score == 0: screen.blit(game_message,game_message_rect)
-		else: screen.blit(score_message,score_message_rect)
+		if score == 0: 
+			screen.blit(game_message,game_message_rect)
+		else: 
+			screen.blit(score_message, score_message_rect)
+			screen.blit(restart_message, restart_message_rect)
 
 	pygame.display.update()
 	clock.tick(60)

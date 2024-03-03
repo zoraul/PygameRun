@@ -1,11 +1,23 @@
 import pygame
 from random import randint, choice
+from enum import IntEnum
 
 #-------------------------------------------------#
 # Class : Obstacle
 #-------------------------------------------------#
 
+
+
 class Obstacle(pygame.sprite.Sprite):
+
+	game_level = "Easy"
+	
+	class Level(IntEnum):
+		EASY = 2000
+		MEDIUM = 1500
+		HARD = 1000
+		HARDEST = 500
+
 	def __init__(self,type):
 		super().__init__()
 		

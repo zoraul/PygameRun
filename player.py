@@ -6,7 +6,8 @@ import pygame
 
 
 class Player(pygame.sprite.Sprite):
-	WIDTH, HEIGHT = 800, 400
+	LEFT_BONDARY, RIGHT_BOUNDARY = 5, 750
+	
 	def __init__(self):
 		super().__init__()
 		player_run_1 = pygame.image.load('graphics/player/knight/player_run_1.png').convert_alpha()
@@ -32,6 +33,9 @@ class Player(pygame.sprite.Sprite):
 		self.image = self.player_run[self.player_index]
 		self.rect = self.image.get_rect(midbottom = (80,300))
 		self.gravity = 0
+		self.player_lives = 3
+		self.player_speed = 5
+		
 
 		self.jump_sound = pygame.mixer.Sound('audio/jump.mp3')
 		self.jump_sound.set_volume(0.5)
@@ -43,12 +47,12 @@ class Player(pygame.sprite.Sprite):
 			self.jump_sound.play()
 		if keys[pygame.K_RIGHT]:
 			#check if the movement is within the boundary and only then allow it
-			if (self.rect.x + 5) < 750:
-				self.rect.x += 5			
+			if (self.rect.x + self.player_speed) < self.__class__.RIGHT_BOUNDARY:
+				self.rect.x += self.player_speed			
 		if keys[pygame.K_LEFT]:
 			#Tcheck if the movement is within the boundary and only then allow it
-			if (self.rect.x + 5) > 0:
-				self.rect.x -= 5
+			if (self.rect.x + self.player_speed) > self.__class__.LEFT_BONDARY:
+				self.rect.x -= self.player_speed
 		#if keys[pygame.K_DOWN]:
 			#TODO change the player to bend down
 
