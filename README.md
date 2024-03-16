@@ -6,7 +6,7 @@ Steps to run this program, please perform the following:
 
 NOTE: This is the first version of the game, soon this game will be modified with new features, functionalities and improved User Interface with different easy/med/hard levels.
 
-CREDIT: This game is based and inspired from https://github.com/clear-code-projects/UltimatePygameIntro but with new added features. Thanks to the author and his youtube video to explain the code at https://www.youtube.com/watch?v=AY9MnQ4x3zk.
+CREDIT: This game is inspired from https://github.com/clear-code-projects/UltimatePygameIntro where I learnt a lot about pygame library. Thanks to the author and his youtube video to explain the code at https://www.youtube.com/watch?v=AY9MnQ4x3zk.
 
 Thanks and kind regards,
 Zorawar Aulakh
