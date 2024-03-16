@@ -1,6 +1,6 @@
 # PygameRun 
 Steps to run this program, please perform the following:
-1. Change the project folder path in start_game.py, line 162
+1. Change the project folder path (WORKING_DIR constant in start_game.py file)
 2. Clear the existing highest score record by deleting the database-file pygameRun.db in the database folder
 3. Play this game by running code in start_game.py
 

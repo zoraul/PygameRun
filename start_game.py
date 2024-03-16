@@ -11,6 +11,7 @@ from obstacle import Obstacle
 def Main():
 	WIDTH, HEIGHT = 800, 400
 	clock = pygame.time.Clock()
+	WORKING_DIR = 'C:/GitHub/PygameRun' #NOTE: Change this path as per your project location
 
 	#----------------------- Function display_score: Start ----------------
 	# Displays the hightest score on the screen
@@ -123,7 +124,7 @@ def Main():
 
 	
 	# Changing the current working directory
-	os.chdir('C:/GitHub/PygameRun') #NOTE: Change this path as per your project location
+	os.chdir(WORKING_DIR)
 	player_name = input("Enter your name: ")
 	database_init()
 	pygame.init()
