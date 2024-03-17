@@ -1,0 +1,45 @@
+[2024-03-17 21:39:26,128]: [start_game.py: database_init: 74 ] - database_init - going to create/open db connection...1
+[2024-03-17 21:39:26,128]: [start_game.py: database_init: 77 ] - database_init - going to create/open db connection ..test = 100
+[2024-03-17 21:39:26,131]: [start_game.py: database_init: 82 ] - database_init - created/opened db connection with higest_score table having value = ('aaa', 466)
+[2024-03-17 21:39:39,407]: [start_game.py: update_score: 104 ] - No existing record exist: INSERT the record in the database
+[2024-03-17 21:39:39,429]: [start_game.py: update_score: 112 ] - Players found in the database and their score: [('ZORAWAR', 98), ('aaa', 466), ('Zorawar', 20), ('Harpreet', 46), ('aaaa', 26), ('qqq', 45), ('Har', 0)]
+[2024-03-17 21:39:50,723]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:39:52,233]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:39:55,365]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:39:58,439]: [start_game.py: Main: 209 ] - Create Enemy of type Alien
+[2024-03-17 21:39:59,941]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:01,443]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:02,821]: [start_game.py: Main: 209 ] - Create Enemy of type Alien
+[2024-03-17 21:40:05,486]: [start_game.py: Main: 209 ] - Create Enemy of type Nightborne
+[2024-03-17 21:40:10,365]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:10,866]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:11,380]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:11,876]: [start_game.py: collision_sprite: 64 ] - player lives = 4
+[2024-03-17 21:40:11,891]: [start_game.py: Main: 209 ] - Create Enemy of type Nightborne
+[2024-03-17 21:40:12,468]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:13,067]: [start_game.py: Main: 209 ] - Create Enemy of type Nightborne
+[2024-03-17 21:40:13,966]: [start_game.py: Main: 209 ] - Create Enemy of type Alien
+[2024-03-17 21:40:15,302]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:15,814]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:16,329]: [start_game.py: Main: 209 ] - Create Enemy of type Alien
+[2024-03-17 21:40:17,816]: [start_game.py: Main: 209 ] - Create Enemy of type Nightborne
+[2024-03-17 21:40:18,696]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:20,839]: [start_game.py: collision_sprite: 64 ] - player lives = 3
+[2024-03-17 21:40:20,903]: [start_game.py: Main: 209 ] - Create Enemy of type Alien
+[2024-03-17 21:40:21,456]: [start_game.py: Main: 209 ] - Create Enemy of type Nightborne
+[2024-03-17 21:40:21,968]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:22,470]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:22,718]: [start_game.py: collision_sprite: 64 ] - player lives = 2
+[2024-03-17 21:40:23,419]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:23,932]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:24,434]: [start_game.py: Main: 209 ] - Create Enemy of type Alien
+[2024-03-17 21:40:25,232]: [start_game.py: collision_sprite: 64 ] - player lives = 1
+[2024-03-17 21:40:26,132]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:26,632]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:27,263]: [start_game.py: Main: 209 ] - Create Enemy of type Snail
+[2024-03-17 21:40:27,763]: [start_game.py: Main: 209 ] - Create Enemy of type Fly
+[2024-03-17 21:40:28,328]: [start_game.py: collision_sprite: 64 ] - player lives = 0
+[2024-03-17 21:40:28,352]: [start_game.py: update_score: 108 ] - Existing record found: UPDATE the record in the database
+[2024-03-17 21:40:28,365]: [start_game.py: update_score: 112 ] - Players found in the database and their score: [('ZORAWAR', 98), ('aaa', 466), ('Zorawar', 20), ('Harpreet', 46), ('aaaa', 26), ('qqq', 45), ('Har', 49)]
+[2024-03-17 21:40:28,366]: [start_game.py: Main: 197 ] - You have broken the record and having higest score of 49
+[2024-03-17 21:40:30,172]: [start_game.py: update_score: 112 ] - Players found in the database and their score: [('ZORAWAR', 98), ('aaa', 466), ('Zorawar', 20), ('Harpreet', 46), ('aaaa', 26), ('qqq', 45), ('Har', 49)]

@@ -4,8 +4,12 @@ import sqlite3
 from sys import exit
 from random import randint, choice
 
-import enemy.obstacle as obstacle
+from sprites.constants import *
+import sprites.game_sprites as game_sprites
 import player.player as myplayer
+import application_log
+
+logger = application_log.logger_config(__name__)
 
 
 def Main():
@@ -20,7 +24,7 @@ def Main():
 		hg_score_surf = test_font.render(f'Higest Score: {highestScoreRow}',False,'RED')
 		hg_score_rect = hg_score_surf.get_rect(center = (400,20))
 		screen.blit(hg_score_surf, hg_score_rect)
-	#----------------------- Function collision_sprite: End ----------------
+	#----------------------- Function display_score: End ----------------
 
 	#----------------------- Function display_score: Start ----------------
 	# Displays the current score of the player
@@ -30,7 +34,7 @@ def Main():
 		score_rect = score_surf.get_rect(center = (400,50))
 		screen.blit(score_surf,score_rect)
 		return current_time
-	#----------------------- Function collision_sprite: End ----------------
+	#----------------------- Function display_score: End ----------------
 
 	#----------------------- Function display_lives: Start ----------------
 	# Displays the number of lives of the player
@@ -43,7 +47,7 @@ def Main():
 	#----------------------- Function display_game_level: Start ----------------
 	# Displays the game's difficulty level
 	def display_game_level():
-		level_surf = test_font.render(f'Level: {obstacle.Obstacle.game_level}',False,(64,64,64))
+		level_surf = test_font.render(f'Level: {game_sprites.EnemySprite.game_level}',False,(64,64,64))
 		level_rect = level_surf.get_rect(center = (200,50))
 		screen.blit(level_surf, level_rect)
 	#----------------------- Function display_game_level: End ----------------
@@ -51,24 +55,31 @@ def Main():
 	#----------------------- Function collision_sprite: Start ----------------
 	# Checks if sprite collides with enemy and return true/false
 	def collision_sprite():
-		if pygame.sprite.spritecollide(player.sprite,obstacle_group,False):
-			obstacle_group.empty()
+		if pygame.sprite.spritecollide(player.sprite, enemy_group, False):
+			print('**************** collided with enemy group')
+			enemy_group.empty()
 			player.sprite.player_lives -= 1
 			player.sprite.image = player.sprite.player_dead
 			game_active = False
-			print("player lives = ", player.sprite.player_lives)
+			logger.debug("player lives = %s", player.sprite.player_lives)
+		elif pygame.sprite.spritecollide(player.sprite, power_up, False):
+			print('************************ collided with power up sprite')
+			player.sprite.player_lives += 1
+			power_up.empty()
 	#----------------------- Function collision_sprite: End ----------------
 
 	#----------------------- Function database_init: Start ----------------
 	# Initialise the database tables, connection, etc
 	def database_init():
-		print("database_init - going to create/open db connection.....1")
+		logger.debug("database_init - going to create/open db connection...1")
 		global dbConnection, cursor, highestScoreRow
+		test = 100
+		logger.debug("database_init - going to create/open db connection ..test = %s", test)
 		dbConnection = sqlite3.connect("database/pygameRun.db") # opening the database connection
 		cursor = dbConnection.cursor()
 		cursor.execute("create table if not exists higest_score(name text, score integer)")
 		highestScoreRow = get_highest_score()
-		print("database_init - created/opened db connection with higest_score table having value = ", highestScoreRow)
+		logger.debug("database_init - created/opened db connection with higest_score table having value = %s", highestScoreRow)
 	#----------------------- Function database_init: End ----------------
 
 	#----------------------- Function get_personal_highest_score: Start ----------------
@@ -87,18 +98,18 @@ def Main():
 	# Insert or Update the score of current player in the database
 	def update_score():
 		retValue = False
-		print("update_score - **score = ", score)
+		logger.debug("update_score - **score = ", score)
 		personalhighestScoreRow = get_personal_highest_score()
 		if personalhighestScoreRow == None:
-			print("*************** INSERT")
+			logger.debug("No existing record exist: INSERT the record in the database")
 			cursor.execute("insert into higest_score(name, score) values(?,?)", (player_name, score))
 			cursor.connection.commit()
 		elif (isinstance(personalhighestScoreRow[1], (int)) and personalhighestScoreRow[1] < score):
-			print("*************** UPDATE")
+			logger.debug("Existing record found: UPDATE the record in the database")
 			cursor.execute("update higest_score set score = ? where name is ?", (score, player_name))
 			cursor.connection.commit()
 			retValue = True
-		print(cursor.execute("select * from higest_score").fetchall())
+		logger.debug('Players found in the database and their score: %s', cursor.execute("select * from higest_score").fetchall())
 		return retValue
 	#----------------------- Function update_score: End ----------------
 
@@ -106,26 +117,32 @@ def Main():
 	# updates the game's difficulty level
 	def update_game_level():
 		if score > 30:
-			pygame.time.set_timer(obstacle_timer, int(obstacle.Obstacle.Level.HARDEST))
-			obstacle.Obstacle.game_level = obstacle.Obstacle.Level.HARDEST.name
+			pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.HARDEST))
+			game_sprites.EnemySprite.game_level = game_sprites.EnemySprite.Level.HARDEST.name
 		elif score > 20:
-			pygame.time.set_timer(obstacle_timer, int(obstacle.Obstacle.Level.HARD))
-			obstacle.Obstacle.game_level = obstacle.Obstacle.Level.HARD.name
+			pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.HARD))
+			game_sprites.EnemySprite.game_level = game_sprites.EnemySprite.Level.HARD.name
 		elif score > 10:
-			pygame.time.set_timer(obstacle_timer, int(obstacle.Obstacle.Level.MEDIUM))
-			obstacle.Obstacle.game_level = obstacle.Obstacle.Level.MEDIUM.name
+			pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.MEDIUM))
+			game_sprites.EnemySprite.game_level = game_sprites.EnemySprite.Level.MEDIUM.name
 		else:
-			pygame.time.set_timer(obstacle_timer, int(obstacle.Obstacle.Level.EASY))
-			obstacle.Obstacle.game_level = obstacle.Obstacle.Level.EASY.name
+			pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.EASY))
+			game_sprites.EnemySprite.game_level = game_sprites.EnemySprite.Level.EASY.name
 	#----------------------- Function update_game_level: End ----------------
-
 
 #----------------------- Main program: Start ----------------
 
-	
 	# Changing the current working directory
 	os.chdir(WORKING_DIR)
-	player_name = input("Enter your name: ")
+
+	is_playername_valid = False
+	while(not is_playername_valid):
+		player_name = input("Enter your name: ")
+		if(player_name != ''):
+			is_playername_valid = True
+		else:
+			print("Invalid name: name cannot be empty.")
+
 	database_init()
 	pygame.init()
 	screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -143,7 +160,8 @@ def Main():
 	player = pygame.sprite.GroupSingle()
 	player.add(myplayer.Player())
 
-	obstacle_group = pygame.sprite.Group()
+	power_up = pygame.sprite.GroupSingle()
+	enemy_group = pygame.sprite.Group()
 
 	sky_surface = pygame.image.load('resources/graphics/Sky.png').convert()
 	ground_surface = pygame.image.load('resources/graphics/ground.png').convert()
@@ -161,8 +179,10 @@ def Main():
 
 	# Timer 
 	obstacle_timer = pygame.USEREVENT + 1
-	pygame.time.set_timer(obstacle_timer, int(obstacle.Obstacle.Level.EASY))
-	obstacle.Obstacle.game_level = "EASY"
+	power_up_timer = pygame.USEREVENT + 2
+	pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.EASY))
+	pygame.time.set_timer(power_up_timer, int(20000))
+	game_sprites.EnemySprite.game_level = "EASY"
 
 
 	while True:
@@ -174,7 +194,7 @@ def Main():
 				game_active = False
 				isPersonalHighestScoreUpdated = update_score()
 				if isPersonalHighestScoreUpdated:
-					print("You have broken the record and having higest score of ", score)
+					logger.debug("You have broken the record and having higest score of %s", score)
 				
 				
 			if event.type == pygame.QUIT:
@@ -185,7 +205,11 @@ def Main():
 			if game_active:
 				if event.type == obstacle_timer:
 					display_higest_score()
-					obstacle_group.add(obstacle.Obstacle(choice(['snail','fly','snail','snail','Nightborne'])))
+					enemyChoice = choice([ENEMY_TYPE_ALIEN, ENEMY_TYPE_SNAIL, ENEMY_TYPE_FLY, ENEMY_TYPE_SNAIL, ENEMY_TYPE_SNAIL, ENEMY_TYPE_NIGHTBORNE])
+					logger.debug('Create Enemy of type %s', enemyChoice)
+					enemy_group.add(game_sprites._get_Enemy_Sprite(enemyChoice))
+				if event.type == power_up_timer:
+					power_up.add(game_sprites.PowerUpSprite())
 			
 			else:
 				if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE or event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT):
@@ -195,7 +219,7 @@ def Main():
 					isPersonalHighestScoreUpdated = update_score()
 					display_higest_score()
 					if isPersonalHighestScoreUpdated:
-						print("You have broken the record and having higest score of ", score)
+						logger.debug("You have broken the record and having higest score of %s", score)
 					start_time = int(pygame.time.get_ticks() / 1000)
 
 
@@ -210,8 +234,10 @@ def Main():
 			player.draw(screen)
 			player.update()
 
-			obstacle_group.draw(screen)
-			obstacle_group.update()
+			enemy_group.draw(screen)
+			enemy_group.update()
+			power_up.draw(screen)
+			power_up.update()
 
 			collision_sprite()
 		else:
@@ -235,4 +261,8 @@ def Main():
 #----------------------- Main program: End ----------------
 		
 if __name__ == "__main__":
-    Main()
+	try:
+		Main()
+	except Exception as ex:
+		logger.error('Game is terminated due to an error. Error: %s', ex)
+		raise
