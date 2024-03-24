@@ -1,6 +1,7 @@
 import pygame
 import os
 import sqlite3
+import configparser
 from sys import exit
 from random import randint, choice
 
@@ -8,45 +9,60 @@ from sprites.constants import *
 import sprites.game_sprites as game_sprites
 import player.player as myplayer
 import application_log
+import constants
 
+# Using configparser to read the properties files
+config = configparser.ConfigParser()
+
+# Read the resource property file to support different languages
+config.read(constants.WORKING_DIR + constants.RESOURCE_PROPERTYFILE)
+
+# added logger to have application logs in the log file.
 logger = application_log.logger_config(__name__)
 
-
+# This is the Main function for this application
 def Main():
 	WIDTH, HEIGHT = 800, 400
 	clock = pygame.time.Clock()
-	WORKING_DIR = 'C:/GitHub/PygameRun' #NOTE: Change this path as per your project location
 
 	#------------------- Function: display_score ----------------
 	# Displays the hightest score on the screen
 	def display_higest_score():
 		highestScoreRow = get_highest_score()
-		hg_score_surf = game_font.render(f'Higest Score: {highestScoreRow}',False,'RED')
+		hg_score_msg = config.get('Game', 'game.highest.score')
+		hg_score_surf = game_font.render(hg_score_msg + f': {highestScoreRow}', False, 'RED')
 		hg_score_rect = hg_score_surf.get_rect(center = (400,20))
 		screen.blit(hg_score_surf, hg_score_rect)
+
 
 	#------------------- Function: display_score ----------------
 	# Displays the current score of the player
 	def display_score():
 		current_time = int(pygame.time.get_ticks() / 1000) - start_time
-		score_surf = game_font.render(f'Score: {current_time}',False,(64,64,64))
+		player_score_msg = config.get('Player', 'player.score')
+		score_surf = game_font.render(player_score_msg + ': ' + str(current_time), False, (64,64,64))
 		score_rect = score_surf.get_rect(center = (400,50))
 		screen.blit(score_surf,score_rect)
 		return current_time
 
+
 	#------------------- Function: display_lives ----------------
 	# Displays the number of lives of the player
 	def display_lives():
-		lives_surf = game_font.render(f'Lives: {player.sprite.player_lives}',False,(64,64,64))
+		lives_msg = config.get('Player', 'player.lives')
+		lives_surf = game_font.render(lives_msg + ': ' + str(player.sprite.player_lives), False, (64,64,64))
 		lives_rect = lives_surf.get_rect(center = (600,50))
 		screen.blit(lives_surf, lives_rect)
+
 
 	#------------------- Function: display_game_level ----------------
 	# Displays the game's difficulty level
 	def display_game_level():
-		level_surf = game_font.render(f'Level: {game_sprites.EnemySprite.game_level}',False,(64,64,64))
+		game_level_msg = config.get('Player', 'player.game.level')
+		level_surf = game_font.render(game_level_msg + ': ' + game_sprites.EnemySprite.game_level, False, (64,64,64))
 		level_rect = level_surf.get_rect(center = (200,50))
 		screen.blit(level_surf, level_rect)
+
 
 	#------------------- Function: collision_sprite ----------------
 	# Checks if sprite collides with enemy and return true/false
@@ -64,6 +80,7 @@ def Main():
 			logger.debug("player lives = %s", player.sprite.player_lives)
 			power_up.empty()
 
+
 	#------------------- Function: database_init ----------------
 	# Initialise the database tables, connection, etc
 	def database_init():
@@ -75,15 +92,18 @@ def Main():
 		highestScoreRow = get_highest_score()
 		logger.debug("database_init - created/opened db connection with higest_score table having value = %s", highestScoreRow)
 
+
 	#------------------- Function: get_personal_highest_score ----------------
 	# Utility function to get the player's personal highest score from the database
 	def get_personal_highest_score():
 		return cursor.execute("select * from higest_score where name = ?", (player_name,)).fetchone()
 
+
 	#------------------- Function: get_highest_score ----------------
 	# Utility function to get the higest score from the database
 	def get_highest_score():
 		return cursor.execute("select * from higest_score where score = (select max(score) from higest_score)").fetchone()
+
 
 	#------------------- Function: update_score ----------------
 	# Insert or Update the score of current player in the database
@@ -102,6 +122,7 @@ def Main():
 			retValue = True
 		logger.debug('Players found in the database and their score: %s', cursor.execute("select * from higest_score").fetchall())
 		return retValue
+	
 
 	#------------------- Function: update_game_level ----------------
 	# updates the game's difficulty level
@@ -119,34 +140,44 @@ def Main():
 			pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.EASY))
 			game_sprites.EnemySprite.game_level = game_sprites.EnemySprite.Level.EASY.name
 			
+	
 	#------------------- Function: show_title_screen ----------------
 	# shows the 'Title Screen'
 	def show_title_screen():
-		player_stand = pygame.image.load('resources/graphics/player/knight/player_stand.png').convert_alpha()
+		player_stand = pygame.image.load(constants.PLAYER_SPRITE_STAND_IMG).convert_alpha()
 		player_stand = pygame.transform.rotozoom(player_stand,0,2)
 		player_stand_rect = player_stand.get_rect(center = (400,200))
-		game_name = game_font.render(player_name + ' Runner',False,(111,196,169))
+		game_name = game_font.render(player_name + ' ' + config.get('Player', 'player.runner'), False, (111,196,169))
 		game_name_rect = game_name.get_rect(center = (400,80))
-		game_message = game_font.render('Hey, Press space to run',False,(111,196,169))
-		game_message_rect = game_message.get_rect(center = (400,330))
+		game_start_message = game_font.render(game_start_text, False, (111,196,169))
+		game_start_rect = game_start_message.get_rect(center = (400,370))
 
 		screen.fill((94,129,162))
 		screen.blit(player_stand, player_stand_rect)
 		screen.blit(game_name,game_name_rect)
-		screen.blit(game_message,game_message_rect)
+		screen.blit(game_start_message,game_start_rect)
+		
+		pygame.draw.rect(screen, colour, input_rect, 2)
+		input_surface = game_font.render(player_name, True, WHITE)
+		screen.blit(input_surface, (input_rect.x + 5, input_rect.y + 5))
+
+		pygame.display.flip()
+
 
 	#------------------- Function: show_game_end_screen ----------------
 	# shows the 'Game End Screen'
 	def show_game_end_screen():
-		player_stand = pygame.image.load('resources/graphics/player/knight/player_stand.png').convert_alpha()
+		player_stand = pygame.image.load(constants.PLAYER_SPRITE_STAND_IMG).convert_alpha()
 		player_stand = pygame.transform.rotozoom(player_stand,0,2)
 		player_stand_rect = player_stand.get_rect(center = (400,200))
-		game_name = game_font.render(player_name + ' Runner',False,(111,196,169))
+		game_name = game_font.render(player_name + ' Runner', False, (111,196,169))
 		game_name_rect = game_name.get_rect(center = (400,80))
-		score_message = game_font.render(f'Your score: {score}',False,(111,196,169))
+		your_score_msg = config.get('Game', 'game.your.score')
+		score_message = game_font.render(your_score_msg + ': ' + str(score), False, (111,196,169))
 		score_message_rect = score_message.get_rect(center = (400,330))
 		screen.blit(game_name,game_name_rect)
-		restart_message = game_font.render(f'Press space to restart a new game',False,(111,196,169))
+		game_restart_msg = config.get('Game', 'game.restart.msg')
+		restart_message = game_font.render(game_restart_msg, False, (111,196,169))
 		restart_message_rect = restart_message.get_rect(center = (400,380))
 
 		screen.fill((94,129,162))
@@ -154,11 +185,12 @@ def Main():
 		screen.blit(score_message, score_message_rect)
 		screen.blit(restart_message, restart_message_rect)
 
+	
 	#------------------- Function: show_play_screen ----------------
 	# shows the 'Play Screen'
 	def show_play_screen():
-		sky_surface = pygame.image.load('resources/graphics/Sky.png').convert()
-		ground_surface = pygame.image.load('resources/graphics/ground.png').convert()
+		sky_surface = pygame.image.load(constants.BACKGROUND_SKY_IMAGE).convert()
+		ground_surface = pygame.image.load(constants.BACKGROUND_GROUND_IMAGE).convert()
 		
 		screen.blit(sky_surface,(0,0))
 		screen.blit(ground_surface,(0,300))
@@ -177,70 +209,46 @@ def Main():
 
 		collision_sprite()
 
+	
 	#------------------- Function: update_player_score ----------------
 	# Update the score
 	def update_player_score(s):
 		global score
 		score = s
 
-	# shows the 'Play Screen'
-	def input_player_name():
-		while True:
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					pygame.quit()
 
-				elif event.type == pygame.KEYDOWN:
-
-					if event.key == pygame.K_BACKSPACE:
-						print('*************** Player name BEFORE: ', player_name)
-						player_name = player_name[:-1]
-						print('*************** Player name AFTER: ', player_name)
-					elif event.key == pygame.K_RETURN:
-						print("---------------------Pressed Enter")
-						return player_name
-					else:
-						print('################ Player name BEFORE: ', player_name)
-						player_name += event.unicode
-						print('################ Player name AFTER: ', player_name)
-
-			screen.fill(BLACK)
-
-			input_surface = game_font.render(player_name, True, WHITE)
-			screen.blit(input_surface, (10, 20))
-
-			pygame.display.flip()
-
-
+#-------------------------------------------------
 #------------------- Main program ----------------
+#-------------------------------------------------
 
 	# Changing the current working directory
-	os.chdir(WORKING_DIR)
-
-	is_playername_valid = False
-	while(not is_playername_valid):
-		player_name = input("Enter your name: ")
-		if(player_name != ''):
-			is_playername_valid = True
-		else:
-			print("Invalid name: name cannot be empty.")
+	os.chdir(constants.WORKING_DIR)
 
 	global game_font
 	global bg_music 
+	global player_name
 
 	pygame.init()
 	database_init()
 
-	screen = pygame.display.set_mode((WIDTH, HEIGHT))
-	pygame.display.set_caption(player_name + ' - run run and win!')
 	clock = pygame.time.Clock()
-	game_font = pygame.font.Font('resources/font/Pixeltype.ttf', 50)
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
+	game_font = pygame.font.Font(constants.GAME_FONT, 50)
+	bg_music = pygame.mixer.Sound(constants.BACKGROUND_MUSIC)
+	bg_music.play(loops = -1)
 	game_active = False
 	start_time = 0
 	update_player_score(0)
-	bg_music = pygame.mixer.Sound('resources/audio/amongThieves.mp3')
-	bg_music.play(loops = -1)
+	player_name = ''
+	input_rect = pygame.Rect(200, 300, 400, 30)
+	colour = pygame.Color('black')
 
+	WHITE = (255, 255, 255)
+	BLACK = (0, 0, 0)
+
+	game_start_text = config.get('Game', 'game.start.msg')
+	pygame.display.set_caption(config.get('Game', 'game.caption'))
+	
 	# Sprites
 	player = pygame.sprite.GroupSingle()
 	player.add(myplayer.Player())
@@ -282,15 +290,35 @@ def Main():
 					power_up.add(game_sprites.PowerUpSprite())
 			
 			else:
-				if event.type == pygame.KEYDOWN and (event.key == pygame.K_SPACE):
-					game_active = True
-					update_player_score(0)
-					player.sprite.player_lives = 3
-					isPersonalHighestScoreUpdated = update_score()
-					display_higest_score()
-					if isPersonalHighestScoreUpdated:
-						logger.debug("You have broken the record and having higest score of %s", score)
-					start_time = int(pygame.time.get_ticks() / 1000)
+				if event.type == pygame.KEYDOWN: 
+
+					if event.key == pygame.K_BACKSPACE:						
+						logger.debug('Player name BEFORE: ', player_name)
+						if len(player_name) > 0:
+							game_start_text = config.get('Game', 'game.start.msg')
+							player_name = player_name[:-1]
+						logger.debug('Player name AFTER: ', player_name)
+
+					elif event.key == pygame.K_RETURN:
+						logger.debug("Pressed Enter")
+						# Validation: player name cannot be empty
+						if len(player_name) == 0:
+							game_start_text = config.get('Game', 'game.input.validation.msg')
+						else:
+							game_active = True
+							update_player_score(0)
+							player.sprite.player_lives = 3
+							isPersonalHighestScoreUpdated = update_score()
+							display_higest_score()
+							if isPersonalHighestScoreUpdated:
+								logger.debug("You have broken the record and having higest score of %s", score)
+							start_time = int(pygame.time.get_ticks() / 1000)
+					else:
+						logger.debug('Player name BEFORE: ', player_name)
+						if len(player_name) < 23:
+							player_name += event.unicode
+							game_start_text = config.get('Game', 'game.start.msg')
+						logger.debug('Player name AFTER: ', player_name)
 
 
 		if game_active:
@@ -303,11 +331,12 @@ def Main():
 
 		pygame.display.update()
 		clock.tick(60)
-#------------------- Main program: End ----------------
 		
+
 if __name__ == "__main__":
 	try:
 		Main()
+	# Catch the exception and add the error message in the application logfile
 	except Exception as ex:
 		logger.error('Game is terminated due to an error. Error: %s', ex)
 		raise
