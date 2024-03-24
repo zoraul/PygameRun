@@ -16,3 +16,7 @@ RESOURCE_PROPERTYFILE = '/code/resourcebundleEnglish.properties'
 PLAYER_SPRITE_STAND_IMG = 'resources/graphics/player/knight/player_stand.png'
 BACKGROUND_SKY_IMAGE = 'resources/graphics/Sky.png'
 BACKGROUND_GROUND_IMAGE = 'resources/graphics/ground.png'
+
+BUTTON_REPLAY_IMG = 'resources/graphics/buttons/replay.png'
+BUTTON_QUIT_IMG = 'resources/graphics/buttons/quit.png'
+BUTTON_RANKING_IMG = 'resources/graphics/buttons/ranking.png'

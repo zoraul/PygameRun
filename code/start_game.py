@@ -186,11 +186,6 @@ def Main():
 	def show_game_end_screen():
 		screen.fill((94,129,162))
 
-		# player_stand = pygame.image.load(constants.PLAYER_SPRITE_STAND_IMG).convert_alpha()
-		# player_stand = pygame.transform.rotozoom(player_stand,0,2)
-		# player_stand_rect = player_stand.get_rect(center = (400,200))
-		# screen.blit(player_stand,player_stand_rect)
-
 		# Player Name
 		player_name_msg = game_font.render(player_name, False, (111,196,169))
 		player_name_msg_rect = player_name_msg.get_rect(center = (400, 50))
@@ -247,12 +242,24 @@ def Main():
 
 		collision_sprite()
 
+
+	#------------------- Function: show_ranking_screen ----------------
+	# shows the 'Ranking Screen'
+	def show_ranking_screen():
+		players = get_all_players_ranking()
+
+		for idx, player in enumerate(players):
+			print(str(idx+1) + '.  ' + player[0] + ' (' + str(player[1]) + ')')
 	
 	#------------------- Function: update_player_score ----------------
 	# Update the score
 	def update_player_score(s):
 		global score
 		score = s
+
+	def draw_txt(text, text_col, x, y):
+		img = game_font.render(text, True, text_col)
+		screen.blit(img, (x, y))
 
 
 #-------------------------------------------------
@@ -301,6 +308,15 @@ def Main():
 	pygame.time.set_timer(obstacle_timer, int(game_sprites.EnemySprite.Level.EASY))
 	pygame.time.set_timer(power_up_timer, int(20000))
 	game_sprites.EnemySprite.game_level = "EASY"
+
+	# Button images
+	replay_bttn_img = pygame.image.load(constants.BUTTON_REPLAY_IMG).convert_alpha()
+	ranking_bttn_img = pygame.image.load(constants.BUTTON_RANKING_IMG).convert_alpha()
+	quit_bttn_img = pygame.image.load(constants.BUTTON_QUIT_IMG).convert_alpha()
+	# Button instances
+	ranking_button = Button(200, 250, ranking_bttn_img, 1)
+	replay_button = Button(380, 250, replay_bttn_img, 1)
+	quit_button = Button(500, 250, quit_bttn_img, 1)
 
 
 	while True:
@@ -368,9 +384,51 @@ def Main():
 				show_title_screen()
 			else: 				
 				show_game_end_screen()
+				if(quit_button.draw(screen)):
+					pygame.quit()
+					dbConnection.close() 
+					exit()
+				elif(replay_button.draw(screen)):
+					game_active = True
+					update_player_score(0)
+					player.sprite.player_lives = 3
+					isPersonalHighestScoreUpdated = update_score()
+					display_higest_score()
+					if isPersonalHighestScoreUpdated:
+						logger.debug("You have broken the record and having higest score of %s", score)
+					start_time = int(pygame.time.get_ticks() / 1000)
+				elif(ranking_button.draw(screen)):
+					print("Show ranking screen")
+					show_ranking_screen()
+
 
 		pygame.display.update()
 		clock.tick(60)
+
+class Button():
+	def __init__(self, x, y, image, scale):
+		width = image.get_width()
+		height = image.get_height()
+		self.image = pygame.transform.scale(image, (int(width * scale), int(height * scale)))
+		self.rect = self.image.get_rect()
+		self.rect.topleft = (x, y)
+		self.clicked = False
+
+	def draw(self, surface):
+		action = False
+		pos = pygame.mouse.get_pos()
+
+		if self.rect.collidepoint(pos):
+			if pygame.mouse.get_pressed()[0] == 1 and self.clicked == False:
+				self.clicked = True
+				action = True
+
+		if pygame.mouse.get_pressed()[0] == 0:
+			self.clicked = False
+
+		surface.blit(self.image, (self.rect.x, self.rect.y))
+
+		return action
 		
 
 if __name__ == "__main__":
@@ -380,3 +438,5 @@ if __name__ == "__main__":
 	except Exception as ex:
 		logger.error('Game is terminated due to an error. Error: %s', ex)
 		raise
+
+
