@@ -97,6 +97,23 @@ def Main():
 	# Utility function to get the player's personal highest score from the database
 	def get_personal_highest_score():
 		return cursor.execute("select * from higest_score where name = ?", (player_name,)).fetchone()
+	
+	#------------------- Function: get_all_players_ranking ----------------
+	# Utility function to get player's score order by score
+	def get_all_players_ranking():
+		return cursor.execute("select * from higest_score order by score desc").fetchall()
+	
+	#------------------- Function: get_personal_highest_score ----------------
+	# Utility function to get the player's personal highest score from the database
+	def get_player_ranking():
+		players = get_all_players_ranking()
+		global rank
+		rank = 0
+		for idx, player in enumerate(players):
+			if player[0] == player_name:
+				return idx+1
+
+		return rank
 
 
 	#------------------- Function: get_highest_score ----------------
@@ -167,23 +184,44 @@ def Main():
 	#------------------- Function: show_game_end_screen ----------------
 	# shows the 'Game End Screen'
 	def show_game_end_screen():
-		player_stand = pygame.image.load(constants.PLAYER_SPRITE_STAND_IMG).convert_alpha()
-		player_stand = pygame.transform.rotozoom(player_stand,0,2)
-		player_stand_rect = player_stand.get_rect(center = (400,200))
-		game_name = game_font.render(player_name + ' Runner', False, (111,196,169))
-		game_name_rect = game_name.get_rect(center = (400,80))
-		your_score_msg = config.get('Game', 'game.your.score')
+		screen.fill((94,129,162))
+
+		# player_stand = pygame.image.load(constants.PLAYER_SPRITE_STAND_IMG).convert_alpha()
+		# player_stand = pygame.transform.rotozoom(player_stand,0,2)
+		# player_stand_rect = player_stand.get_rect(center = (400,200))
+		# screen.blit(player_stand,player_stand_rect)
+
+		# Player Name
+		player_name_msg = game_font.render(player_name, False, (111,196,169))
+		player_name_msg_rect = player_name_msg.get_rect(center = (400, 50))
+		screen.blit(player_name_msg, player_name_msg_rect)
+		
+		# Current Score
+		your_score_msg = config.get('Player', 'player.current.score')
 		score_message = game_font.render(your_score_msg + ': ' + str(score), False, (111,196,169))
-		score_message_rect = score_message.get_rect(center = (400,330))
-		screen.blit(game_name,game_name_rect)
+		score_message_rect = score_message.get_rect(center = (400, 100))
+		screen.blit(score_message, score_message_rect)
+		
+		# Personal Highest Score
+		your_score_msg = config.get('Player', 'player.personal.highest')
+		score_message = game_font.render(your_score_msg + ': ' + str(get_personal_highest_score()[1]), False, (111,196,169))
+		score_message_rect = score_message.get_rect(center = (400, 150))
+		screen.blit(score_message, score_message_rect)
+
+		# Overall Ranking
+		your_score_msg = config.get('Player', 'player.ranking')
+		score_message = game_font.render(your_score_msg + ': ' + str(get_player_ranking()), False, (111,196,169))
+		score_message_rect = score_message.get_rect(center = (400, 200))
+		screen.blit(score_message, score_message_rect)
+
+		# Restart Message
 		game_restart_msg = config.get('Game', 'game.restart.msg')
 		restart_message = game_font.render(game_restart_msg, False, (111,196,169))
-		restart_message_rect = restart_message.get_rect(center = (400,380))
-
-		screen.fill((94,129,162))
-		screen.blit(player_stand,player_stand_rect)
-		screen.blit(score_message, score_message_rect)
+		restart_message_rect = restart_message.get_rect(center = (400,350))
 		screen.blit(restart_message, restart_message_rect)
+
+		global not_game_end_screen
+		not_game_end_screen = True
 
 	
 	#------------------- Function: show_play_screen ----------------
@@ -227,6 +265,7 @@ def Main():
 	global game_font
 	global bg_music 
 	global player_name
+	global not_game_end_screen
 
 	pygame.init()
 	database_init()
@@ -237,6 +276,7 @@ def Main():
 	bg_music = pygame.mixer.Sound(constants.BACKGROUND_MUSIC)
 	bg_music.play(loops = -1)
 	game_active = False
+	not_game_end_screen = False
 	start_time = 0
 	update_player_score(0)
 	player_name = ''
@@ -293,11 +333,11 @@ def Main():
 				if event.type == pygame.KEYDOWN: 
 
 					if event.key == pygame.K_BACKSPACE:						
-						logger.debug('Player name BEFORE: ', player_name)
+						logger.debug('Player name BEFORE: ' + player_name)
 						if len(player_name) > 0:
 							game_start_text = config.get('Game', 'game.start.msg')
 							player_name = player_name[:-1]
-						logger.debug('Player name AFTER: ', player_name)
+						logger.debug('Player name AFTER: ' + player_name)
 
 					elif event.key == pygame.K_RETURN:
 						logger.debug("Pressed Enter")
@@ -314,11 +354,11 @@ def Main():
 								logger.debug("You have broken the record and having higest score of %s", score)
 							start_time = int(pygame.time.get_ticks() / 1000)
 					else:
-						logger.debug('Player name BEFORE: ', player_name)
+						logger.debug('Player name BEFORE: ' + player_name)
 						if len(player_name) < 23:
 							player_name += event.unicode
 							game_start_text = config.get('Game', 'game.start.msg')
-						logger.debug('Player name AFTER: ', player_name)
+						logger.debug('Player name AFTER: ' + player_name)
 
 
 		if game_active:
@@ -326,7 +366,7 @@ def Main():
 		else:
 			if score == 0: 
 				show_title_screen()
-			else: 
+			else: 				
 				show_game_end_screen()
 
 		pygame.display.update()
