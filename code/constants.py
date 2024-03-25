@@ -11,7 +11,7 @@ BACKGROUND_MUSIC = 'resources/audio/amongThieves.mp3'
 
 # Select the appropriate file to have this game in specific language
 # use resourcebundleFrench for FRENCH or resourcebundleEnglish for ENGLISH
-RESOURCE_PROPERTYFILE = '/code/resourcebundleFrench.properties' 
+RESOURCE_PROPERTYFILE = '/code/resourcebundleEnglish.properties' 
 
 PLAYER_SPRITE_STAND_IMG = 'resources/graphics/player/knight/player_stand.png'
 TROPHY_IMG = 'resources/graphics/player/knight/player_trophy.jpg'

@@ -285,10 +285,6 @@ def Main():
 		global score
 		score = s
 
-	def draw_txt(text, text_col, x, y):
-		img = game_font.render(text, True, text_col)
-		screen.blit(img, (x, y))
-
 
 #-------------------------------------------------
 #------------------- Main program ----------------
