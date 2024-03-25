@@ -1,10 +1,10 @@
 # PygameRun 
 Steps to run this program, please perform the following:
-1. Change the project folder path (WORKING_DIR constant in start_game.py file)
+1. Change the project folder path (WORKING_DIR constant in constants.py file)
 2. Clear the existing highest score record by deleting the database-file pygameRun.db in the database folder
 3. Play this game by running code in start_game.py
 
-NOTE: This is the first version of the game, soon this game will be modified with new features, functionalities and improved User Interface with different easy/med/hard levels.
+NOTE: This project is part of my NEA program. It is the latest version, however this game will be modified with new features, functionalities and improved User Interface.
 
 CREDIT: This game is inspired from https://github.com/clear-code-projects/UltimatePygameIntro where I learnt a lot about pygame library. Thanks to the author and his youtube video to explain the code at https://www.youtube.com/watch?v=AY9MnQ4x3zk.
 

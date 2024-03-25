@@ -84,7 +84,7 @@ def Main():
 	#------------------- Function: database_init ----------------
 	# Initialise the database tables, connection, etc
 	def database_init():
-		logger.debug("database_init - going to create/open db connection...1")
+		logger.debug("database_init - going to create/open db connection...")
 		global dbConnection, cursor, highestScoreRow
 		dbConnection = sqlite3.connect("database/pygameRun.db")
 		cursor = dbConnection.cursor()
@@ -246,10 +246,38 @@ def Main():
 	#------------------- Function: show_ranking_screen ----------------
 	# shows the 'Ranking Screen'
 	def show_ranking_screen():
-		players = get_all_players_ranking()
+		screen.fill((94,129,162))
+		exit_button.draw(screen)	
 
+		# Plaer Sprite Image
+		player_tropy = pygame.image.load(constants.PLAYER_SPRITE_STAND_IMG).convert_alpha()
+		player_tropy = pygame.transform.rotozoom(player_tropy,0,2)
+		player_tropy_rect = player_tropy.get_rect(center = (150,150))
+		screen.blit(player_tropy, player_tropy_rect)
+
+		# Plaer Trophy Image
+		player_tropy = pygame.image.load(constants.TROPHY_IMG).convert_alpha()
+		player_tropy = pygame.transform.rotozoom(player_tropy,0,2)
+		player_tropy_rect = player_tropy.get_rect(center = (650,150))
+		screen.blit(player_tropy, player_tropy_rect)
+
+
+		# Rank
+		players_ranking_msg = config.get('Player', 'players.ranking')
+		player_message = game_font.render(players_ranking_msg, False, 'Orange')
+		player_message_rect = player_message.get_rect(center = (400, 50))
+		screen.blit(player_message, player_message_rect)
+
+
+		players = get_all_players_ranking()
 		for idx, player in enumerate(players):
-			print(str(idx+1) + '.  ' + player[0] + ' (' + str(player[1]) + ')')
+			# show top 5 player's ranking
+			if(idx < 5):
+				player_rank = str(idx+1) + '.  ' + player[0] + ' (' + str(player[1]) + ')'
+				player_message = game_font.render(player_rank, False, (111,196,169))
+				player_message_rect = player_message.get_rect(center = (400, 50 + (50*(idx+1))))
+				screen.blit(player_message, player_message_rect)
+
 	
 	#------------------- Function: update_player_score ----------------
 	# Update the score
@@ -289,6 +317,7 @@ def Main():
 	player_name = ''
 	input_rect = pygame.Rect(200, 300, 400, 30)
 	colour = pygame.Color('black')
+	player_ranking_screen = False
 
 	WHITE = (255, 255, 255)
 	BLACK = (0, 0, 0)
@@ -313,10 +342,12 @@ def Main():
 	replay_bttn_img = pygame.image.load(constants.BUTTON_REPLAY_IMG).convert_alpha()
 	ranking_bttn_img = pygame.image.load(constants.BUTTON_RANKING_IMG).convert_alpha()
 	quit_bttn_img = pygame.image.load(constants.BUTTON_QUIT_IMG).convert_alpha()
+	exit_bttn_img = pygame.image.load(constants.BUTTON_EXIT_IMG).convert_alpha()
 	# Button instances
 	ranking_button = Button(200, 250, ranking_bttn_img, 1)
 	replay_button = Button(380, 250, replay_bttn_img, 1)
 	quit_button = Button(500, 250, quit_bttn_img, 1)
+	exit_button = Button(350, 350, exit_bttn_img, 1)
 
 
 	while True:
@@ -379,15 +410,23 @@ def Main():
 
 		if game_active:
 			show_play_screen()
+
+		elif player_ranking_screen:
+			if(exit_button.draw(screen)):
+				player_ranking_screen = False
+			show_ranking_screen()
+
 		else:
 			if score == 0: 
 				show_title_screen()
 			else: 				
 				show_game_end_screen()
+	
 				if(quit_button.draw(screen)):
 					pygame.quit()
 					dbConnection.close() 
 					exit()
+
 				elif(replay_button.draw(screen)):
 					game_active = True
 					update_player_score(0)
@@ -397,9 +436,10 @@ def Main():
 					if isPersonalHighestScoreUpdated:
 						logger.debug("You have broken the record and having higest score of %s", score)
 					start_time = int(pygame.time.get_ticks() / 1000)
+
 				elif(ranking_button.draw(screen)):
-					print("Show ranking screen")
-					show_ranking_screen()
+					player_ranking_screen = True
+					
 
 
 		pygame.display.update()
